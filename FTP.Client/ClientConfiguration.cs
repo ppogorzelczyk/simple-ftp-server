@@ -14,9 +14,10 @@ namespace FTP.Client
         private IPAddress _ipAddress;
         private IPEndPoint _endPoint;
         private Socket _sender;
+        public bool IsConnected = false;
         private bool _ascii = false;
         private bool _binary = true;
-        
+
         public bool Binary
         {
             get => _binary;
@@ -80,7 +81,7 @@ namespace FTP.Client
             Run();
         }
 
-        private void EndConnection()
+        public void EndConnection()
         {
             _sender.Shutdown(SocketShutdown.Both);
             _sender.Close();

@@ -7,7 +7,7 @@ namespace FTP.Client
 {
     public partial class Client
     {
-        private void HandleDirCommand(ControlCommands command, string directory)
+        public string HandleDirCommand(ControlCommands command, string directory)
         {
             var data = new byte[Consts.BUFFER_SIZE];
             var commandBytes = BitConverter.GetBytes((int)command);
@@ -19,10 +19,10 @@ namespace FTP.Client
             
             var response = new byte[Consts.BUFFER_SIZE];
             _sender.Receive(response);
-            ConsoleMethods.WriteLineWithColor(Encoding.UTF8.GetString(response.Where(r => r != 0).ToArray()), ConsoleColor.Green);
+            return Encoding.UTF8.GetString(response.Where(r => r != 0).ToArray());
         }
 
-        private void HandleGetCommand(string fileToDownloadPath)
+        public string HandleGetCommand(string fileToDownloadPath)
         {
             var data = new byte[Consts.BUFFER_SIZE];
             var commandBytes = BitConverter.GetBytes((int)ControlCommands.Get);
@@ -40,27 +40,25 @@ namespace FTP.Client
 
             if (fileData.All(r => r == 0))
             {
-                ConsoleMethods.WriteLineWithColor(Encoding.UTF8.GetString(message.Where(r => r != 0).ToArray()), ConsoleColor.Red);
-                return;
-            };
+                return Encoding.UTF8.GetString(message.Where(r => r != 0).ToArray());
+            }
             
             if (Binary)
             {
                 var path = Path.Combine(Directory.GetCurrentDirectory(), Path.GetFileName(fileToDownloadPath));
                 File.WriteAllBytes(path, fileData);
-                Console.WriteLine($"Plik został zapisany w {path}");
+                return $"Plik został zapisany w {path}";
             }
             else if (Ascii)
             {
                 var fileContent = Encoding.UTF8.GetString(fileData);
-                ConsoleMethods.WriteLineWithColor("Zawartość pliku:", ConsoleColor.Green);
-                Console.WriteLine(fileContent);
+                return $"Zawartość pliku:\n{fileContent}";
             }
 
-            ConsoleMethods.WriteLineWithColor(Encoding.UTF8.GetString(message.Where(r => r != 0).ToArray()), ConsoleColor.Green);
+            return Encoding.UTF8.GetString(message.Where(r => r != 0).ToArray());
         }
 
-        private void HandlePutCommand(string filePath, string locationToSave)
+        public string HandlePutCommand(string filePath, string locationToSave)
         {
             if (string.IsNullOrWhiteSpace(locationToSave))
             {
@@ -80,7 +78,7 @@ namespace FTP.Client
             
             var response = new byte[Consts.BUFFER_SIZE];
             _sender.Receive(response);
-            ConsoleMethods.WriteLineWithColor(Encoding.UTF8.GetString(response.Where(r => r != 0).ToArray()), ConsoleColor.Green);
+            return Encoding.UTF8.GetString(response.Where(r => r != 0).ToArray());
         }
     }
 }

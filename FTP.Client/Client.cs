@@ -15,23 +15,22 @@ namespace FTP.Client
             };
         }
 
-        public void Run()
+        public bool Run()
         {
             ConfigureClient();
-            var shouldExit = false;
             try
             {
                 _sender = NewSender();
                 ActivateConnection();
-                while (!shouldExit)
-                {
-                    ConsoleMethods.DisplayCommands();
-                    shouldExit = GetUserCommand();
-                }
+                //while (!shouldExit)
+                //{
+                //    ConsoleMethods.DisplayCommands();
+                //    shouldExit = GetUserCommand();
+                //}
             }
             catch (SocketException e)
             {
-                if(e.ErrorCode == 61)
+                if (e.ErrorCode == 61)
                 {
                     HandleConnectionTimeout();
                 }
@@ -41,11 +40,15 @@ namespace FTP.Client
                     throw;
                 }
             }
-            finally
+            catch (Exception e)
             {
-                EndConnection();
+                Console.WriteLine(e.Message);
+                return false;
             }
+            IsConnected = true;
+            return true;
         }
+
 
         private bool GetUserCommand()
         {
